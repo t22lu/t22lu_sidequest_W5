@@ -1,93 +1,78 @@
 /*
-Week 5 — Example 2: Top-Down Camera Follow (Bounded)
+Week 5 — Example 3: Data-driven world with JSON + WorldLevel class
 
 Course: GBDA302 | Instructors: Dr. Karen Cochrane & David Han
 Date: Feb. 12, 2026
 
 Move: WASD/Arrows
 
-Goal:
-- Camera follows player
-- Camera is clamped so it never shows outside the world
+Learning goals:
+- Load world data from an external JSON file (preload + loadJSON)
+- Keep Level and Player as external classes (WorldLevel.js, Player.js)
+- Separate game state (world/player) from view state (camera)
+- Keep the player visible on screen (camera clamp + player clamp)
 */
 
-let p = { x: 300, y: 300, s: 3 }; // player in world coords
-let cam = { x: 0, y: 0 }; // camera top-left in world coords
+const VIEW_W = 800;
+const VIEW_H = 480;
 
-const W = 2400,
-  H = 1600; // world size
+let worldData; // raw JSON
+let level; // WorldLevel instance
+let player; // Player instance
 
-const viewW = 800,
-  viewH = 480; // canvas (viewport size)
+let camX = 0; // camera top-left in WORLD coords
+let camY = 0;
+
+function preload() {
+  worldData = loadJSON("world.json");
+}
 
 function setup() {
-  createCanvas(viewW, viewH);
+  createCanvas(VIEW_W, VIEW_H);
   textFont("sans-serif");
   textSize(14);
+
+  level = new WorldLevel(worldData);
+
+  const start = worldData.playerStart ?? { x: 300, y: 300, speed: 3 };
+  player = new Player(start.x, start.y, start.speed);
 }
 
 function draw() {
-  // --- update player ---
-  let dx =
-    (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) -
-    (keyIsDown(LEFT_ARROW) || keyIsDown(65));
+  // --- game state update ---
+  player.updateInput();
 
-  let dy =
-    (keyIsDown(DOWN_ARROW) || keyIsDown(83)) -
-    (keyIsDown(UP_ARROW) || keyIsDown(87));
+  // Keep the player inside the world so they can't run off forever.
+  // This also guarantees they can't "leave the camera behind".
+  player.x = constrain(player.x, 0, level.w);
+  player.y = constrain(player.y, 0, level.h); // constrain() clamps a value between low/high. [web:80]
 
-  const len = max(1, abs(dx) + abs(dy)); // cheap diagonal normalise
+  // --- view state update (camera) ---
+  // Safe camera bounds even if world is smaller than the viewport.
+  const maxCamX = max(0, level.w - width);
+  const maxCamY = max(0, level.h - height);
 
-  // Clamp player so they cannot leave the world
-  p.x = constrain(p.x + (dx / len) * p.s, 0, W);
-  p.y = constrain(p.y + (dy / len) * p.s, 0, H);
+  // Center camera on player, then clamp to legal camera range.
+  camX = constrain(player.x - width / 2, 0, maxCamX);
+  camY = constrain(player.y - height / 2, 0, maxCamY);
 
-  // --- camera centres on player, then clamps to world bounds ---
-  cam.x = constrain(p.x - width / 2, 0, W - width);
-  cam.y = constrain(p.y - height / 2, 0, H - height);
+  // --- draw ---
+  level.drawBackground();
 
-  background(220);
-
-  // --- parallax backdrop (reduced motion? gate with a flag) ---
+  // World + player are drawn in WORLD space (translated by camera).
   push();
-  translate(-cam.x * 0.5, -cam.y * 0.5);
-  noStroke();
-  fill(230);
-  rect(0, 0, W, H); // far layer
-  for (let i = 0; i < 80; i++) {
-    fill(210);
-    circle(i * 120, (i * 75) % H, 40);
-  } // distant dots
+  translate(-camX, -camY);
+  level.drawWorld();
+  player.draw();
   pop();
 
-  // --- main world layer ---
-  push();
-  translate(-cam.x, -cam.y);
+  // HUD is drawn in SCREEN space (no camera translation).
+  level.drawHUD(player, camX, camY);
+}
 
-  // grid “tiles”
-  stroke(240);
-  fill(245);
-  for (let x = 0; x <= W; x += 160) line(x, 0, x, H);
-  for (let y = 0; y <= H; y += 160) line(0, y, W, y);
-
-  // obstacles
-  noStroke();
-  fill(170, 190, 210);
-  for (let i = 0; i < 30; i++) {
-    const x = (i * 280) % W,
-      y = (i * 180) % H;
-    rect(x + 40, y + 40, 80, 80, 10);
+function keyPressed() {
+  if (key === "r" || key === "R") {
+    const start = worldData.playerStart ?? { x: 300, y: 300, speed: 3 };
+    player = new Player(start.x, start.y, start.speed);
   }
-
-  // player
-  fill(50, 110, 255);
-  noStroke();
-  rect(p.x - 12, p.y - 12, 24, 24, 5);
-
-  pop();
-
-  // HUD (screen space)
-  fill(20);
-  noStroke();
-  text(`Pos: ${p.x | 0}, ${p.y | 0} Cam: ${cam.x | 0}, ${cam.y | 0}`, 12, 20);
 }
