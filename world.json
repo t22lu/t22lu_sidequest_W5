@@ -3,7 +3,9 @@
   "world": {
     "w": 2400,
     "h": 1600,
-    "bg": [235, 235, 235],
+    "gradientTop": [180, 220, 255],
+    "gradientBottom": [255, 190, 230],
+
     "gridStep": 160
   },
   "camera": {

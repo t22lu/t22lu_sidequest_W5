@@ -67,8 +67,13 @@ function draw() {
 
   level.drawBackground();
 
+  //subtle zoom breathing of the world screen
   push();
-  translate(-camX, -camY);
+
+  let zoom = 1 + sin(frameCount * 0.01) * 0.02;
+  translate(width / 2, height / 2);
+  scale(zoom);
+  translate(-camX - width / 2, -camY - height / 2);
   level.drawWorld();
   player.draw();
   pop();
