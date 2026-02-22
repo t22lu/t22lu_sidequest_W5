@@ -5,6 +5,7 @@ class WorldLevel {
     this.w = json.world?.w ?? 2400;
     this.h = json.world?.h ?? 1600;
     this.bg = json.world?.bg ?? [235, 235, 235];
+    this.clouds = json.clouds ?? [];
     this.gridStep = json.world?.gridStep ?? 160;
 
     this.obstacles = json.obstacles ?? [];
@@ -29,6 +30,16 @@ class WorldLevel {
     noStroke();
     fill(170, 190, 210);
     for (const o of this.obstacles) rect(o.x, o.y, o.w, o.h, o.r ?? 0);
+
+    //Draws clouds in the background
+    for (const c of this.clouds) {
+      let float = sin(frameCount * 0.02 + c.x) * 10;
+
+      fill(255, 255, 255, 255);
+      ellipse(c.x, c.y + float, c.size);
+      ellipse(c.x - 50, c.y + float, c.size * 0.8);
+      ellipse(c.x + 70, c.y + float, c.size * 0.8);
+    }
   }
 
   drawHUD(player, camX, camY) {
