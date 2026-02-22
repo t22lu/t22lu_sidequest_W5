@@ -118,7 +118,7 @@ class WorldLevel {
   drawHUD(player, camX, camY) {
     noStroke();
     fill(20);
-    text("In a DreamySky", 12, 20);
+    text("In a DreamySky -WASD to move/R to reset", 12, 20);
     text(
       "camLerp(JSON): " +
         this.camLerp +
