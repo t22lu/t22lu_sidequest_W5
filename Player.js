@@ -20,8 +20,32 @@ class Player {
   }
 
   draw() {
-    fill(50, 110, 255);
+    push();
+    translate(this.x, this.y);
+
+    // gentle floating bob
+    let bob = sin(frameCount * 0.1) * 2;
+    translate(0, bob);
+
     noStroke();
-    rect(this.x - 12, this.y - 12, 24, 24, 5);
+
+    // wing flap animation
+    let flap = sin(frameCount * 0.3) * 8;
+
+    fill(255, 230, 200);
+    ellipse(-12, flap * 0.5, 14, 8);
+
+    // body
+    fill(255, 240, 220);
+    ellipse(0, 0, 28, 24);
+
+    //puts a wing behind
+    ellipse(12, flap * 0.5, 14, 8);
+
+    // small eye
+    fill(50);
+    ellipse(4, -2, 2);
+
+    pop();
   }
 }
