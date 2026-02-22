@@ -12,7 +12,7 @@ Tiffany Lu, 21078479, t22lu
 
 ## Description
 
-This mini dream like sky world game, allows players to move around while to float around to help feel calm and and a sense of peace.
+This mini dream like sky world game, allows players to move around while experiencing the stary dreamskly to feel a sense of peace amongus the clouds.
 
 ---
 

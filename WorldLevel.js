@@ -20,10 +20,7 @@ class WorldLevel {
 
     if (this.starSettings) {
       for (let i = 0; i < this.starSettings.count; i++) {
-        this.shootingStars.push({
-          x: random(this.w),
-          y: random(this.h),
-        });
+        this.spawnStar();
       }
     }
   }
@@ -37,8 +34,6 @@ class WorldLevel {
     this.shootingStars.push({
       x: random(this.w),
       y: random(this.h * 0.6), // upper sky area
-      vx: -this.shootingConfig.speed,
-      vy: this.shootingConfig.speed * 0.5,
     });
   }
 
@@ -62,21 +57,21 @@ class WorldLevel {
 
     //shooting stars
     if (this.starSettings) {
-      stroke(this.starSettings.color);
+      // spawn new stars over time
+      if (random() < this.starSettings.spawnRate) {
+        this.spawnStar();
+      }
+
       strokeWeight(2);
 
-      for (const s of this.shootingStars) {
-        // move in a consistent diagonal direction
+      for (let i = this.shootingStars.length - 1; i >= 0; i--) {
+        let s = this.shootingStars[i];
+
+        // movement (consistent diagonal)
         s.x -= this.starSettings.speed;
         s.y += this.starSettings.speed;
 
-        // wrap across the entire world space
-        if (s.x > this.w || s.y < 0) {
-          s.x = random(-200, this.w);
-          s.y = random(this.h, this.h + 200);
-        }
-
-        // glowing trail
+        // draw glow
         stroke(
           this.starSettings.color[0],
           this.starSettings.color[1],
@@ -100,6 +95,11 @@ class WorldLevel {
           s.x - this.starSettings.length,
           s.y + this.starSettings.length,
         );
+
+        // remove if fully outside world
+        if (s.x > this.w + 200 || s.y < -200) {
+          this.shootingStars.splice(i, 1);
+        }
       }
     }
     noStroke();

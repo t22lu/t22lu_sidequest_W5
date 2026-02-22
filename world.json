@@ -17,10 +17,11 @@
     "speed": 3
   },
   "shootingStars": {
-    "count": 25,
-    "speed": 1.2,
+    "count": 3,
+    "speed": 4,
     "length": 140,
-    "color": [255, 255, 255]
+    "color": [255, 255, 255],
+    "spawnRate": 0.15
   },
   "clouds": [
     { "x": 400, "y": 1300, "size": 120 },
